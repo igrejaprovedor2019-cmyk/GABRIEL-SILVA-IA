@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GABRIEL SILVA / IA - Oficial</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background: #0b0e14; color: #e2e8f0; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .ai-gradient { background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); }
+        .typing-dot { animation: typing 1.4s infinite; }
+        @keyframes typing { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    </style>
+</head>
+<body class="h-screen flex flex-col">
+
+    <header class="w-full p-4 glass flex justify-between items-center z-10">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 ai-gradient rounded-full flex items-center justify-center shadow-lg shadow-blue-500/20">
+                <i class="fas fa-robot text-white"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg tracking-tight">GABRIEL SILVA <span class="text-blue-400">/ IA</span></h1>
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span class="text-[10px] text-gray-400 uppercase tracking-widest font-semibold">Online | Versão 2.0</span>
+                </div>
+            </div>
+        </div>
+        <button class="text-gray-400 hover:text-white transition"><i class="fas fa-cog text-xl"></i></button>
+    </header>
+
+    <main id="chat-container" class="flex-1 overflow-y-auto p-4 space-y-6">
+        <div class="flex gap-4">
+            <div class="w-8 h-8 ai-gradient rounded-full flex-shrink-0 flex items-center justify-center text-xs">GS</div>
+            <div class="glass p-4 rounded-2xl rounded-tl-none max-w-[85%] shadow-sm">
+                <p class="leading-relaxed text-sm text-gray-200">
+                    Olá! Sou o <b>Gabriel Silva / IA</b>. Estou configurado com processamento de alta performance para te ajudar com textos, códigos e criação de imagens. Como posso ser útil agora?
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <div id="typing" class="hidden px-6 py-2 flex items-center gap-2 text-gray-500 text-xs">
+        <span>Gabriel está processando</span>
+        <span class="typing-dot">.</span><span class="typing-dot" style="animation-delay: 0.2s">.</span><span class="typing-dot" style="animation-delay: 0.4s">.</span>
+    </div>
+
+    <footer class="p-4 glass m-4 rounded-2xl">
+        <div class="flex items-center gap-3">
+            <input id="input" type="text" placeholder="Pergunte qualquer coisa..." 
+                class="w-full bg-transparent border-none focus:ring-0 text-sm placeholder-gray-500">
+            <button onclick="handleSend()" class="ai-gradient px-5 py-2.5 rounded-xl font-semibold text-sm hover:scale-105 transition-all shadow-lg shadow-blue-500/30">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </footer>
+
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+        const input = document.getElementById('input');
+        const typing = document.getElementById('typing');
+        
+        let memory = []; // Memória da conversa
+
+        function appendMessage(role, content, isImage = false) {
+            const div = document.createElement('div');
+            div.className = role === 'user' ? "flex gap-4 flex-row-reverse" : "flex gap-4";
+            
+            const icon = role === 'user' ? '<i class="fas fa-user text-xs"></i>' : 'GS';
+            const color = role === 'user' ? "bg-slate-700" : "glass";
+            const rounded = role === 'user' ? "rounded-tr-none" : "rounded-tl-none";
+
+            const messageHtml = isImage 
+                ? `<img src="${content}" class="rounded-xl w-full border border-white/10 hover:scale-[1.02] transition-transform cursor-pointer shadow-2xl">`
+                : `<p class="leading-relaxed text-sm text-gray-200">${content}</p>`;
+
+            div.innerHTML = `
+                <div class="w-8 h-8 ${role === 'user' ? 'bg-blue-600' : 'ai-gradient'} rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-bold shadow-md">${icon}</div>
+                <div class="${color} p-4 rounded-2xl ${rounded} max-w-[85%] shadow-lg border border-white/5">
+                    ${messageHtml}
+                </div>
+            `;
+            chatContainer.appendChild(div);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        async function handleSend() {
+            const prompt = input.value.trim();
+            if (!prompt) return;
+
+            appendMessage('user', prompt);
+            input.value = '';
+            typing.classList.remove('hidden');
+
+            const promptLower = prompt.toLowerCase();
+            const isImageRequest = promptLower.includes('imagem') || promptLower.includes('desenhe') || promptLower.includes('crie');
+
+            if (isImageRequest) {
+                const seed = Math.floor(Math.random() * 999999);
+                const imageUrl = `https://pollinations.ai/p/${encodeURIComponent(prompt)}?width=1024&height=1024&seed=${seed}&model=flux&nologo=true`;
+                
+                // Simula o tempo de "criação" para parecer mais profissional
+                setTimeout(() => {
+                    typing.classList.add('hidden');
+                    appendMessage('ai', imageUrl, true);
+                }, 2000);
+            } else {
+                try {
+                    // Adiciona contexto para a IA saber quem ela é
+                    const systemContext = "Você é o GABRIEL SILVA / IA. Responda de forma profissional, moderna e útil. Nunca diga que é um modelo de linguagem genérico. Você é uma IA de elite criada para o usuário.";
+                    
+                    const response = await fetch(`https://text.pollinations.ai/prompt/${encodeURIComponent(systemContext + " Pergunta: " + prompt)}`);
+                    const data = await response.text();
+                    
+                    typing.classList.add('hidden');
+                    appendMessage('ai', data);
+                } catch (error) {
+                    typing.classList.add('hidden');
+                    appendMessage('ai', "Desculpe, ocorreu uma instabilidade nos meus servidores. Pode repetir?");
+                }
+            }
+        }
+
+        input.addEventListener('keypress', (e) => { if(e.key === 'Enter') handleSend(); });
+    </script>
+</body>
+</html>
