@@ -7,130 +7,33 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Space Grotesk', sans-serif; background: #05070a; color: #e2e8f0; }
-        .glass { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .user-msg { background: #1e293b; border-radius: 18px 18px 4px 18px; }
-        .ai-msg { background: linear-gradient(135deg, #1d4ed8 0%, #6d28d9 100%); border-radius: 18px 18px 18px 4px; }
-        .typing-dot { animation: typing 1s infinite; width: 6px; height: 6px; background: #94a3b8; rounded-full; }
-        @keyframes typing { 0%, 100% { opacity: 0.3; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #080a0f; color: #e2e8f0; overflow: hidden; }
+        .sidebar { background: #0d111a; border-right: 1px solid rgba(255,255,255,0.05); }
+        .chat-area { background: #080a0f; }
+        .glass-input { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .ai-bubble { background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%); }
+        .user-bubble { background: #1e293b; }
+        .active-tab { background: rgba(59, 130, 246, 0.1); border-left: 3px solid #3b82f6; }
     </style>
 </head>
-<body class="h-screen flex flex-col items-center">
+<body class="h-screen flex">
 
-    <header class="w-full max-w-5xl p-4 flex justify-between items-center border-b border-white/5 z-10">
-        <div class="flex items-center gap-3">
-            <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse shadow-lg shadow-blue-500/50"></div>
-            <h1 class="font-bold text-xl tracking-tighter text-white">GABRIEL SILVA <span class="text-gray-500">/ IA</span></h1>
+    <aside class="sidebar w-64 hidden md:flex flex-col p-4">
+        <div class="flex items-center gap-3 mb-8 px-2">
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/20">GS</div>
+            <span class="font-bold tracking-tight text-white">GABRIEL SILVA</span>
         </div>
-        <div class="flex gap-2 items-center text-xs text-gray-500 glass px-3 py-1 rounded-full">
-            <i class="fas fa-bolt text-yellow-400"></i>
-            <span>MODO CONVERSACIONAL</span>
-        </div>
-    </header>
-
-    <main id="chat-container" class="flex-1 w-full max-w-3xl overflow-y-auto p-4 md:p-6 space-y-6 scroller">
-        <div class="flex gap-3 items-start">
-            <div class="w-9 h-9 ai-msg rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold shadow-lg">GS</div>
-            <div class="ai-msg p-4 max-w-[85%] shadow-xl">
-                <p class="leading-relaxed text-sm text-white">
-                    Eae! Tranquilo? Sou o <b>Gabriel Silva / IA</b>. Pode mandar a real, o que você tá precisando hoje? Texto, código, uma imagem louca... tô safe pra tudo. Manda buscar!
-                </p>
+        <nav class="flex-1 space-y-2">
+            <div class="active-tab p-3 rounded-r-lg text-sm font-medium text-blue-400 flex items-center gap-3 cursor-pointer">
+                <i class="fas fa-comment-alt w-5"></i> Chat Principal
             </div>
-        </div>
-    </main>
-
-    <div id="typing" class="hidden w-full max-w-3xl px-16 py-2 flex items-center gap-1.5 text-gray-500 text-xs">
-        <div class="typing-dot"></div><div class="typing-dot" style="animation-delay: 0.2s"></div><div class="typing-dot" style="animation-delay: 0.4s"></div>
-    </div>
-
-    <footer class="w-full max-w-3xl p-4 pb-6 mt-auto">
-        <div class="glass p-2 rounded-full flex items-center gap-2 shadow-2xl border border-white/10">
-            <input id="input" type="text" placeholder="Troca uma ideia comigo..." 
-                class="flex-1 bg-transparent border-none focus:ring-0 text-sm placeholder-gray-600 pl-4 text-white outline-none">
-            <button onclick="handleSend()" class="ai-msg w-10 h-10 rounded-full flex items-center justify-center hover:scale-105 transition-all shadow-lg active:scale-95">
-                <i class="fas fa-paper-plane text-white text-sm"></i>
-            </button>
-        </div>
-    </footer>
-
-    <script>
-        const chatContainer = document.getElementById('chat-container');
-        const input = document.getElementById('input');
-        const typing = document.getElementById('typing');
-        
-        function appendMessage(role, content, isImage = false) {
-            const div = document.createElement('div');
-            div.className = role === 'user' ? "flex gap-3 flex-row-reverse" : "flex gap-3 items-start";
-            
-            const icon = role === 'user' ? '<i class="fas fa-user text-xs"></i>' : 'GS';
-            const msgClass = role === 'user' ? "user-msg text-gray-200" : "ai-msg text-white";
-
-            const messageHtml = isImage 
-                ? `<img src="${content}" class="rounded-xl w-full border border-white/5 shadow-2xl onload="window.scrollTo(0,document.body.scrollHeight);">`
-                : `<p class="leading-relaxed text-sm">${content}</p>`;
-
-            div.innerHTML = `
-                <div class="w-9 h-9 ${role === 'user' ? 'bg-slate-700' : 'ai-msg'} rounded-full flex-shrink-0 flex items-center justify-center text-[11px] font-bold shadow-md">${icon}</div>
-                <div class="${msgClass} p-4 max-w-[85%] shadow-lg">
-                    ${messageHtml}
-                </div>
-            `;
-            chatContainer.appendChild(div);
-            // Scroll suave para baixo
-            chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
-        }
-
-        async function handleSend() {
-            const prompt = input.value.trim();
-            if (!prompt) return;
-
-            appendMessage('user', prompt);
-            input.value = '';
-            typing.classList.remove('hidden');
-            chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
-
-            const promptLower = prompt.toLowerCase();
-            const isImageRequest = promptLower.includes('imagem') || promptLower.includes('desenhe') || promptLower.includes('crie') || promptLower.includes('mostre');
-
-            if (isImageRequest) {
-                // Lógica de Imagem com o modelo FLUX (sem logo)
-                const seed = Math.floor(Math.random() * 1000000);
-                const imageUrl = `https://pollinations.ai/p/${encodeURIComponent(prompt)}?width=1024&height=1024&seed=${seed}&model=flux&nologo=true`;
-                
-                // Texto de espera natural
-                const esperaAtiva = ["Demorô, tô gerando a imagem aqui...", "Peraí, deixa eu desenhar essa brisa...", "Segura a onda, a imagem tá vindo..."];
-                const textoEspera = esperaAtiva[Math.floor(Math.random() * esperaAtiva.length)];
-                appendMessage('ai', textoEspera);
-
-                setTimeout(() => {
-                    typing.classList.add('hidden');
-                    // Remove a mensagem de espera antes de mandar a imagem (opcional, mas fica mais limpo)
-                    //chatContainer.removeChild(chatContainer.lastChild); 
-                    appendMessage('ai', imageUrl, true);
-                }, 2500);
-            } else {
-                try {
-                    // O SEGREDO TÁ AQUI: O Prompt de Sistema Gigante para dar Personalidade Humana
-                    const systemPrompt = "INSTRUÇÃO ATUAL: Você é o GABRIEL SILVA / IA. Aja como um humano conversando no chat. Seja natural, use gírias leves do Brasil (como 'eae', 'tranquilo', 'manda a real', 'tô safe', 'beleza'), evite formalidades. Não comece respostas com 'Como um modelo de linguagem...'. Responda de forma direta, prestativa e 'gente boa', exatamente como um amigo programador ou designer responderia. Se o usuário for grosso, seja direto e firme, mas não robótico. Mantenha a conversa fluida.";
-                    
-                    const finalPrompt = `${systemPrompt}\n\nUsuário disse: ${prompt}\n\nGabriel Silva / IA responde:`;
-
-                    const response = await fetch(`https://text.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}`);
-                    const data = await response.text();
-                    
-                    typing.classList.add('hidden');
-                    appendMessage('ai', data);
-                } catch (error) {
-                    typing.classList.add('hidden');
-                    appendMessage('ai', "Vish, deu um erro técnico aqui nos meus servidores. Consegue mandar de novo?");
-                }
-            }
-        }
-
-        input.addEventListener('keypress', (e) => { if(e.key === 'Enter') handleSend(); });
-    </script>
-</body>
-</html>
+            <div class="p-3 rounded-lg text-sm font-medium text-gray-500 hover:text-white hover:bg-white/5 flex items-center gap-3 cursor-pointer transition">
+                <i class="fas fa-image w-5"></i> Galeria de Arte
+            </div>
+            <div class="p-3 rounded-lg text-sm font-medium text-gray-500 hover:text-white hover:bg-white/5 flex items-center gap-3 cursor-pointer transition">
+                <i class="fas fa-history w-5"></i> Histórico
+            </div>
+        </nav>
+        <div class="border-t border-white/5 pt-4 mt-auto">
+            <div class="flex items-center gap-3 px-2 text-sm text-
