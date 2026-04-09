@@ -1,58 +1,219 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GABRIEL SILVA | ENTERPRISE V14</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GABRIEL SILVA | OS v9.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: #020202; color: #fff; font-family: sans-serif; height: 100vh; display: flex; overflow: hidden; margin: 0; }
-        .sidebar { width: 260px; background: #080808; border-right: 1px solid #151515; display: flex; flex-direction: column; flex-shrink: 0; }
-        #view { flex: 1; overflow-y: auto; padding: 2rem; display: flex; flex-direction: column; gap: 1rem; scroll-behavior: smooth; background: #000; }
-        .msg { max-width: 85%; padding: 12px 18px; border-radius: 15px; font-size: 14px; animation: in 0.2s ease; line-height: 1.5; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
+        
+        body, html { height: 100%; margin: 0; background: #050505; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; }
+        
+        .sidebar { width: 300px; background: #0a0a0a; border-right: 1px solid #1a1a1a; transition: all 0.3s ease; }
+        .chat-main { flex: 1; display: flex; flex-direction: column; background: #000; position: relative; }
+        
+        #viewport { flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; gap: 20px; scroll-behavior: smooth; }
+        
+        .msg { max-width: 85%; padding: 16px; border-radius: 18px; font-size: 14px; line-height: 1.6; animation: fadeIn 0.3s ease forwards; }
         .ai { background: #111; border: 1px solid #222; align-self: flex-start; }
-        .user { background: #2563eb; align-self: flex-end; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
-        .t-btn { padding: 10px; border-radius: 8px; cursor: pointer; font-size: 12px; color: #666; transition: 0.2s; border-left: 2px solid transparent; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .t-btn.active { background: #111; color: #fff; border-left-color: #2563eb; }
-        input::placeholder { color: #444; }
-        @keyframes in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .user { background: #2563eb; align-self: flex-end; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); }
+
+        .topic-link { 
+            padding: 12px; border-radius: 12px; cursor: pointer; transition: 0.2s; 
+            border: 1px solid transparent; margin-bottom: 8px; font-size: 13px; color: #71717a;
+        }
+        .topic-link:hover { background: #161616; color: #fff; }
+        .topic-link.active { background: #1e1e1e; border-color: #333; color: #fff; font-weight: 600; }
+
+        .input-box { background: #0f0f0f; border: 1px solid #222; border-radius: 16px; padding: 12px 18px; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
     </style>
 </head>
-<body>
-    <aside class="sidebar p-4">
-        <h1 class="font-bold text-xs tracking-widest text-blue-500 mb-6 uppercase">Gabriel Silva AI</h1>
-        <button onclick="Core.new()" class="w-full py-3 bg-white text-black rounded-xl text-[10px] font-black mb-4 hover:bg-blue-600 hover:text-white transition uppercase shadow-lg">+ Novo Tópico</button>
-        <div id="topics" class="flex-1 overflow-y-auto space-y-1 pr-2"></div>
-        <div class="text-[9px] text-zinc-600 border-t border-zinc-900 pt-4 uppercase tracking-widest font-bold">Admin Mode v14.0</div>
-    </aside>
-    <main class="flex-1 flex flex-col relative">
-        <header class="h-14 border-b border-zinc-900 flex items-center px-6 text-[10px] font-bold text-zinc-500 uppercase tracking-widest bg-black/50 backdrop-blur-md">Sistema Operacional Online</header>
-        <div id="view"></div>
-        <div class="p-6 bg-gradient-to-t from-black via-black to-transparent">
-            <div class="max-w-4xl mx-auto flex gap-3 bg-zinc-900 p-2 rounded-2xl border border-zinc-800 shadow-2xl">
-                <input id="in" type="text" placeholder="Escreva sua mensagem ou peça uma imagem..." class="bg-transparent flex-1 p-3 outline-none text-sm text-white">
-                <button onclick="Core.send()" class="bg-blue-600 w-12 h-12 rounded-xl hover:bg-blue-500 transition active:scale-90 flex items-center justify-center shadow-lg shadow-blue-600/20"><i class="fas fa-paper-plane text-xs"></i></button>
+<body class="flex">
+
+    <aside class="sidebar flex flex-col h-full">
+        <div class="p-6">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20">
+                    <i class="fas fa-microchip text-white"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-sm">GABRIEL SILVA</h1>
+                    <p class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Enterprise System</p>
+                </div>
+            </div>
+            <button onclick="Core.createNewChat()" class="w-full py-3 bg-white text-black rounded-xl text-xs font-bold hover:bg-blue-500 hover:text-white transition flex items-center justify-center gap-2">
+                <i class="fas fa-plus"></i> NOVO TÓPICO
+            </button>
+        </div>
+
+        <nav id="topics-list" class="flex-1 overflow-y-auto px-4"></nav>
+
+        <div class="p-6 border-t border-zinc-900">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-[10px]">GS</div>
+                <span class="text-xs font-medium text-zinc-400">Admin Mode</span>
             </div>
         </div>
+    </aside>
+
+    <main class="chat-main">
+        <header class="h-16 border-b border-zinc-900 flex items-center justify-between px-8 bg-black/50 backdrop-blur-xl">
+            <div class="flex items-center gap-4">
+                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span id="current-topic-name" class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Novo Chat</span>
+            </div>
+            <button onclick="Core.deleteCurrentChat()" class="text-zinc-600 hover:text-red-500 transition text-xs">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </header>
+
+        <div id="viewport"></div>
+
+        <footer class="p-6">
+            <div class="max-w-4xl mx-auto input-box flex items-center gap-4 shadow-2xl">
+                <input id="prompt" type="text" placeholder="Envie sua mensagem..." class="bg-transparent flex-1 outline-none text-sm text-white" autocomplete="off">
+                <button id="send-btn" onclick="Core.sendMessage()" class="w-10 h-10 bg-blue-600 hover:bg-blue-500 rounded-xl flex items-center justify-center transition active:scale-90">
+                    <i class="fas fa-paper-plane text-xs text-white"></i>
+                </button>
+            </div>
+        </footer>
     </main>
+
     <script>
+        /**
+         * ENGINE CORE v9.0 - GABRIEL SILVA
+         * Gerenciamento de Persistência e Tópicos
+         */
         const Core = (() => {
-            let db = JSON.parse(localStorage.getItem('gs_v14')) || [], cur = localStorage.getItem('gs_id_v14');
-            const save = () => { localStorage.setItem('gs_v14', JSON.stringify(db)); localStorage.setItem('gs_id_v14', cur); render(); };
-            const render = () => {
-                const nav = document.getElementById('topics'); nav.innerHTML = '';
-                db.forEach(t => { const d = document.createElement('div'); d.className = `t-btn ${t.id === cur ? 'active' : ''}`; d.innerText = t.name; d.onclick = () => load(t.id); nav.appendChild(d); });
+            let chats = JSON.parse(localStorage.getItem('gs_chats')) || [];
+            let currentChatId = localStorage.getItem('gs_current_id') || null;
+
+            const dom = {
+                viewport: document.getElementById('viewport'),
+                input: document.getElementById('prompt'),
+                topics: document.getElementById('topics-list'),
+                topicTitle: document.getElementById('current-topic-name')
             };
-            const load = (id) => {
-                cur = id; const v = document.getElementById('view'); v.innerHTML = '';
-                const chat = db.find(x => x.id === id); if(!chat) return Core.new();
-                chat.msgs.forEach(m => draw(m.r, m.c, m.i)); render();
+
+            const init = () => {
+                if (chats.length === 0) createNewChat();
+                else renderTopics();
+                
+                loadChat(currentChatId || chats[0].id);
+
+                dom.input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') sendMessage();
+                });
             };
-            const draw = (r, c, i) => {
-                const d = document.createElement('div'); d.className = `msg ${r}`;
-                if(i) d.innerHTML = `<img src="${c}" class="w-full rounded-lg shadow-2xl border border-white/5" onload="document.getElementById('view').scrollTop = 999999">`;
-                else d.innerText = c;
-                document.getElementById('view').appendChild(d); document.getElementById('view').scrollTop = 999999;
+
+            const createNewChat = () => {
+                const newChat = {
+                    id: 'chat_' + Date.now(),
+                    title: 'Nova Conversa ' + (chats.length + 1),
+                    messages: []
+                };
+                chats.unshift(newChat);
+                save();
+                loadChat(newChat.id);
+                renderTopics();
             };
-            const send = async () => {
-                const i = document.getElementById('in'), v = i.value.
+
+            const loadChat = (id) => {
+                currentChatId = id;
+                localStorage.setItem('gs_current_id', id);
+                const chat = chats.find(c => c.id === id);
+                
+                dom.viewport.innerHTML = '';
+                dom.topicTitle.innerText = chat.title;
+                
+                chat.messages.forEach(m => renderMessage(m.role, m.content, m.type === 'image'));
+                renderTopics();
+            };
+
+            const renderMessage = (role, content, isImage = false) => {
+                const div = document.createElement('div');
+                div.className = `msg ${role}`;
+                
+                if (isImage) {
+                    div.innerHTML = `<img src="${content}" class="w-full rounded-lg shadow-lg" onload="Core.scroll()">`;
+                } else {
+                    div.innerText = content;
+                }
+                
+                dom.viewport.appendChild(div);
+                scroll();
+            };
+
+            const sendMessage = async () => {
+                const text = dom.input.value.trim();
+                if (!text) return;
+
+                dom.input.value = '';
+                const chat = chats.find(c => c.id === currentChatId);
+
+                // Atualizar título se for a primeira mensagem
+                if (chat.messages.length === 0) {
+                    chat.title = text.substring(0, 25) + "...";
+                }
+
+                const msgUser = { role: 'user', content: text };
+                chat.messages.push(msgUser);
+                renderMessage('user', text);
+                save();
+
+                const isImg = text.toLowerCase().match(/(imagem|foto|desenhe|crie)/i);
+
+                if (isImg) {
+                    const url = `https://pollinations.ai/p/${encodeURIComponent(text)}?width=1024&height=1024&seed=${Math.random()}&model=flux&nologo=true`;
+                    const msgAi = { role: 'ai', content: url, type: 'image' };
+                    chat.messages.push(msgAi);
+                    renderMessage('ai', url, true);
+                } else {
+                    try {
+                        const r = await fetch(`https://text.pollinations.ai/prompt/${encodeURIComponent(text)}`);
+                        const t = await r.text();
+                        const msgAi = { role: 'ai', content: t };
+                        chat.messages.push(msgAi);
+                        renderMessage('ai', t);
+                    } catch (e) {
+                        renderMessage('ai', "Erro de conexão.");
+                    }
+                }
+                save();
+                renderTopics();
+            };
+
+            const renderTopics = () => {
+                dom.topics.innerHTML = '';
+                chats.forEach(c => {
+                    const div = document.createElement('div');
+                    div.className = `topic-link ${c.id === currentChatId ? 'active' : ''}`;
+                    div.innerHTML = `<i class="far fa-comments mr-2"></i> ${c.title}`;
+                    div.onclick = () => loadChat(c.id);
+                    dom.topics.appendChild(div);
+                });
+            };
+
+            const deleteCurrentChat = () => {
+                chats = chats.filter(c => c.id !== currentChatId);
+                localStorage.setItem('gs_chats', JSON.stringify(chats));
+                location.reload();
+            };
+
+            const save = () => localStorage.setItem('gs_chats', JSON.stringify(chats));
+            const scroll = () => dom.viewport.scrollTop = dom.viewport.scrollHeight;
+
+            return { init, createNewChat, sendMessage, scroll, deleteCurrentChat };
+        })();
+
+        Core.init();
+    </script>
+</body>
+</html>
