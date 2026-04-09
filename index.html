@@ -3,217 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GABRIEL SILVA | OS v9.0</title>
+    <title>GABRIEL SILVA | OS v11 ELITE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
-        
-        body, html { height: 100%; margin: 0; background: #050505; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; }
-        
-        .sidebar { width: 300px; background: #0a0a0a; border-right: 1px solid #1a1a1a; transition: all 0.3s ease; }
-        .chat-main { flex: 1; display: flex; flex-direction: column; background: #000; position: relative; }
-        
-        #viewport { flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; gap: 20px; scroll-behavior: smooth; }
-        
-        .msg { max-width: 85%; padding: 16px; border-radius: 18px; font-size: 14px; line-height: 1.6; animation: fadeIn 0.3s ease forwards; }
-        .ai { background: #111; border: 1px solid #222; align-self: flex-start; }
-        .user { background: #2563eb; align-self: flex-end; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); }
-
-        .topic-link { 
-            padding: 12px; border-radius: 12px; cursor: pointer; transition: 0.2s; 
-            border: 1px solid transparent; margin-bottom: 8px; font-size: 13px; color: #71717a;
-        }
-        .topic-link:hover { background: #161616; color: #fff; }
-        .topic-link.active { background: #1e1e1e; border-color: #333; color: #fff; font-weight: 600; }
-
-        .input-box { background: #0f0f0f; border: 1px solid #222; border-radius: 16px; padding: 12px 18px; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        ::-webkit-scrollbar { width: 5px; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        :root { --bg: #030303; --panel: #0a0a0a; --accent: #2563eb; --border: #1a1a1a; }
+        body, html { height: 100%; margin: 0; background: var(--bg); color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; }
+        .sidebar { width: 280px; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 50; }
+        .main-content { flex: 1; display: flex; flex-direction: column; background: #000; position: relative; }
+        #viewport { flex: 1; overflow-y: auto; padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; scroll-behavior: smooth; }
+        .msg { max-width: 85%; padding: 1.2rem; border-radius: 20px; font-size: 14px; line-height: 1.6; animation: fadeInUp 0.3s ease forwards; }
+        .ai { background: #111; border: 1px solid var(--border); align-self: flex-start; }
+        .user { background: var(--accent); align-self: flex-end; box-shadow: 0 10px 20px -10px rgba(37, 99, 235, 0.4); }
+        .topic-btn { padding: 12px; border-radius: 12px; cursor: pointer; transition: 0.3s; font-size: 13px; color: #71717a; display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+        .topic-btn:hover { background: #161616; color: #fff; }
+        .topic-btn.active { background: #1e1e1e; color: #fff; border-left: 3px solid var(--accent); }
+        .input-area { background: #0f0f0f; border: 1px solid var(--border); border-radius: 20px; padding: 10px 20px; display: flex; align-items: center; gap: 15px; }
+        input { background: transparent; flex: 1; outline: none; border: none; color: #fff; font-size: 14px; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
     </style>
 </head>
 <body class="flex">
-
-    <aside class="sidebar flex flex-col h-full">
+    <aside class="sidebar">
         <div class="p-6">
             <div class="flex items-center gap-3 mb-8">
-                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20">
-                    <i class="fas fa-microchip text-white"></i>
-                </div>
-                <div>
-                    <h1 class="font-bold text-sm">GABRIEL SILVA</h1>
-                    <p class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Enterprise System</p>
-                </div>
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-xl shadow-blue-600/30"><i class="fas fa-bolt"></i></div>
+                <h1 class="font-extrabold text-sm tracking-tight text-white uppercase">Gabriel Silva</h1>
             </div>
-            <button onclick="Core.createNewChat()" class="w-full py-3 bg-white text-black rounded-xl text-xs font-bold hover:bg-blue-500 hover:text-white transition flex items-center justify-center gap-2">
-                <i class="fas fa-plus"></i> NOVO TÓPICO
-            </button>
+            <button onclick="System.newChat()" class="w-full py-3 bg-white text-black rounded-xl text-xs font-black hover:bg-blue-600 hover:text-white transition uppercase tracking-tighter shadow-lg">+ Novo Tópico</button>
         </div>
-
-        <nav id="topics-list" class="flex-1 overflow-y-auto px-4"></nav>
-
-        <div class="p-6 border-t border-zinc-900">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-[10px]">GS</div>
-                <span class="text-xs font-medium text-zinc-400">Admin Mode</span>
-            </div>
-        </div>
+        <nav id="topics" class="flex-1 overflow-y-auto px-4"></nav>
+        <div class="p-6 border-t border-zinc-900"><div class="flex items-center gap-3 text-zinc-500 text-[10px] font-bold uppercase tracking-widest"><i class="fas fa-user-shield"></i> Admin Mode Active</div></div>
     </aside>
 
-    <main class="chat-main">
-        <header class="h-16 border-b border-zinc-900 flex items-center justify-between px-8 bg-black/50 backdrop-blur-xl">
-            <div class="flex items-center gap-4">
-                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span id="current-topic-name" class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Novo Chat</span>
-            </div>
-            <button onclick="Core.deleteCurrentChat()" class="text-zinc-600 hover:text-red-500 transition text-xs">
-                <i class="fas fa-trash-alt"></i>
-            </button>
+    <main class="main-content">
+        <header class="h-16 border-b border-zinc-900 flex items-center justify-between px-8 bg-black/40 backdrop-blur-md">
+            <div class="flex items-center gap-3"><div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div><span id="chat-title" class="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Aguardando Comando</span></div>
+            <button onclick="System.clear()" class="text-zinc-700 hover:text-red-500 transition"><i class="fas fa-trash-alt"></i></button>
         </header>
 
         <div id="viewport"></div>
 
-        <footer class="p-6">
-            <div class="max-w-4xl mx-auto input-box flex items-center gap-4 shadow-2xl">
-                <input id="prompt" type="text" placeholder="Envie sua mensagem..." class="bg-transparent flex-1 outline-none text-sm text-white" autocomplete="off">
-                <button id="send-btn" onclick="Core.sendMessage()" class="w-10 h-10 bg-blue-600 hover:bg-blue-500 rounded-xl flex items-center justify-center transition active:scale-90">
-                    <i class="fas fa-paper-plane text-xs text-white"></i>
-                </button>
+        <footer class="p-8 bg-gradient-to-t from-black via-black/90 to-transparent">
+            <div class="max-w-4xl mx-auto input-area shadow-2xl">
+                <input id="query" type="text" placeholder="Envie sua ideia agora..." autocomplete="off">
+                <button onclick="System.handle()" class="w-10 h-10 bg-blue-600 hover:bg-blue-500 rounded-xl flex items-center justify-center transition active:scale-90 shadow-lg shadow-blue-600/20"><i class="fas fa-paper-plane text-xs"></i></button>
             </div>
         </footer>
     </main>
 
     <script>
-        /**
-         * ENGINE CORE v9.0 - GABRIEL SILVA
-         * Gerenciamento de Persistência e Tópicos
-         */
-        const Core = (() => {
-            let chats = JSON.parse(localStorage.getItem('gs_chats')) || [];
-            let currentChatId = localStorage.getItem('gs_current_id') || null;
-
-            const dom = {
-                viewport: document.getElementById('viewport'),
-                input: document.getElementById('prompt'),
-                topics: document.getElementById('topics-list'),
-                topicTitle: document.getElementById('current-topic-name')
-            };
+        const System = (() => {
+            let db = JSON.parse(localStorage.getItem('gs_elite_v11')) || [];
+            let activeId = localStorage.getItem('gs_active_v11') || null;
 
             const init = () => {
-                if (chats.length === 0) createNewChat();
-                else renderTopics();
-                
-                loadChat(currentChatId || chats[0].id);
-
-                dom.input.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') sendMessage();
-                });
+                if (db.length === 0) newChat();
+                else { renderTopics(); loadChat(activeId || db[0].id); }
+                document.getElementById('query').addEventListener('keypress', (e) => { if(e.key === 'Enter') handle(); });
             };
 
-            const createNewChat = () => {
-                const newChat = {
-                    id: 'chat_' + Date.now(),
-                    title: 'Nova Conversa ' + (chats.length + 1),
-                    messages: []
-                };
-                chats.unshift(newChat);
-                save();
-                loadChat(newChat.id);
-                renderTopics();
+            const newChat = () => {
+                const chat = { id: 'ID_' + Date.now(), name: 'Conversa Nova', msgs: [] };
+                db.unshift(chat);
+                save(); loadChat(chat.id);
             };
 
             const loadChat = (id) => {
-                currentChatId = id;
-                localStorage.setItem('gs_current_id', id);
-                const chat = chats.find(c => c.id === id);
-                
-                dom.viewport.innerHTML = '';
-                dom.topicTitle.innerText = chat.title;
-                
-                chat.messages.forEach(m => renderMessage(m.role, m.content, m.type === 'image'));
-                renderTopics();
+                activeId = id;
+                localStorage.setItem('gs_active_v11', id);
+                const chat = db.find(x => x.id === id);
+                document.getElementById('viewport').innerHTML = '';
+                document.getElementById('chat-title').innerText = chat.name;
+                chat.msgs.forEach(m => draw(m.r, m.c, m.t === 'img'));
+                renderTopics(); scroll();
             };
 
-            const renderMessage = (role, content, isImage = false) => {
-                const div = document.createElement('div');
-                div.className = `msg ${role}`;
-                
-                if (isImage) {
-                    div.innerHTML = `<img src="${content}" class="w-full rounded-lg shadow-lg" onload="Core.scroll()">`;
+            const draw = (role, content, isImg = false) => {
+                const d = document.createElement('div');
+                d.className = `msg ${role}`;
+                if(isImg) {
+                    d.innerHTML = `<img src="${content}" class="w-full rounded-lg shadow-2xl border border-white/5" onerror="this.src='https://via.placeholder.com/800?text=Erro+ao+Gerar+Imagem'" onload="System.scroll()">`;
                 } else {
-                    div.innerText = content;
+                    d.innerText = content;
                 }
-                
-                dom.viewport.appendChild(div);
+                document.getElementById('viewport').appendChild(d);
                 scroll();
             };
 
-            const sendMessage = async () => {
-                const text = dom.input.value.trim();
-                if (!text) return;
+            const handle = async () => {
+                const el = document.getElementById('query');
+                const val = el.value.trim();
+                if(!val) return;
+                el.value = '';
 
-                dom.input.value = '';
-                const chat = chats.find(c => c.id === currentChatId);
-
-                // Atualizar título se for a primeira mensagem
-                if (chat.messages.length === 0) {
-                    chat.title = text.substring(0, 25) + "...";
-                }
-
-                const msgUser = { role: 'user', content: text };
-                chat.messages.push(msgUser);
-                renderMessage('user', text);
+                const chat = db.find(x => x.id === activeId);
+                if(chat.msgs.length === 0) chat.name = val.substring(0, 22) + "...";
+                
+                chat.msgs.push({ r: 'user', c: val });
+                draw('user', val);
                 save();
 
-                const isImg = text.toLowerCase().match(/(imagem|foto|desenhe|crie)/i);
-
-                if (isImg) {
-                    const url = `https://pollinations.ai/p/${encodeURIComponent(text)}?width=1024&height=1024&seed=${Math.random()}&model=flux&nologo=true`;
-                    const msgAi = { role: 'ai', content: url, type: 'image' };
-                    chat.messages.push(msgAi);
-                    renderMessage('ai', url, true);
-                } else {
-                    try {
-                        const r = await fetch(`https://text.pollinations.ai/prompt/${encodeURIComponent(text)}`);
-                        const t = await r.text();
-                        const msgAi = { role: 'ai', content: t };
-                        chat.messages.push(msgAi);
-                        renderMessage('ai', t);
-                    } catch (e) {
-                        renderMessage('ai', "Erro de conexão.");
-                    }
-                }
-                save();
-                renderTopics();
-            };
-
-            const renderTopics = () => {
-                dom.topics.innerHTML = '';
-                chats.forEach(c => {
-                    const div = document.createElement('div');
-                    div.className = `topic-link ${c.id === currentChatId ? 'active' : ''}`;
-                    div.innerHTML = `<i class="far fa-comments mr-2"></i> ${c.title}`;
-                    div.onclick = () => loadChat(c.id);
-                    dom.topics.appendChild(div);
-                });
-            };
-
-            const deleteCurrentChat = () => {
-                chats = chats.filter(c => c.id !== currentChatId);
-                localStorage.setItem('gs_chats', JSON.stringify(chats));
-                location.reload();
-            };
-
-            const save = () => localStorage.setItem('gs_chats', JSON.stringify(chats));
-            const scroll = () => dom.viewport.scrollTop = dom.viewport.scrollHeight;
-
-            return { init, createNewChat, sendMessage, scroll, deleteCurrentChat };
-        })();
-
-        Core.init();
-    </script>
-</body>
-</html>
+                const isImg = val.toLowerCase().match(/(imagem|foto|desenhe|c
