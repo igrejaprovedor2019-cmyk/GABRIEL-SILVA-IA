@@ -3,190 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gabriel Silva | Enterprise AI</title>
+    <title>GABRIEL SILVA | OS v9.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
         
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #030303;
-            color: #ffffff;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-        }
+        body, html { height: 100%; margin: 0; background: #050505; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; }
+        
+        .sidebar { width: 300px; background: #0a0a0a; border-right: 1px solid #1a1a1a; transition: all 0.3s ease; }
+        .chat-main { flex: 1; display: flex; flex-direction: column; background: #000; position: relative; }
+        
+        #viewport { flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; gap: 20px; scroll-behavior: smooth; }
+        
+        .msg { max-width: 85%; padding: 16px; border-radius: 18px; font-size: 14px; line-height: 1.6; animation: fadeIn 0.3s ease forwards; }
+        .ai { background: #111; border: 1px solid #222; align-self: flex-start; }
+        .user { background: #2563eb; align-self: flex-end; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); }
 
-        .glass-sidebar {
-            background: rgba(10, 10, 10, 0.8);
-            backdrop-filter: blur(20px);
-            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        .topic-link { 
+            padding: 12px; border-radius: 12px; cursor: pointer; transition: 0.2s; 
+            border: 1px solid transparent; margin-bottom: 8px; font-size: 13px; color: #71717a;
         }
+        .topic-link:hover { background: #161616; color: #fff; }
+        .topic-link.active { background: #1e1e1e; border-color: #333; color: #fff; font-weight: 600; }
 
-        .chat-container {
-            background: radial-gradient(circle at 50% 0%, #111827 0%, #030303 100%);
-        }
-
-        .msg-ai {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 0px 20px 20px 20px;
-        }
-
-        .msg-user {
-            background: #2563eb;
-            border-radius: 20px 20px 0px 20px;
-            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
-        }
-
-        .input-pill {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 24px;
-        }
-
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade { animation: fadeIn 0.3s ease-out forwards; }
+        .input-box { background: #0f0f0f; border: 1px solid #222; border-radius: 16px; padding: 12px 18px; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
     </style>
 </head>
 <body class="flex">
 
-    <aside class="glass-sidebar w-72 hidden md:flex flex-col p-6 z-50">
-        <div class="flex items-center gap-3 mb-10">
-            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/30">
-                <i class="fas fa-bolt text-white text-xl"></i>
-            </div>
-            <div>
-                <h1 class="font-extrabold text-sm tracking-tight text-white">GABRIEL SILVA</h1>
-                <p class="text-[10px] text-blue-500 font-bold uppercase tracking-widest">Enterprise v6.0</p>
-            </div>
-        </div>
-
-        <button onclick="location.reload()" class="w-full py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 mb-8">
-            <i class="fas fa-plus"></i> NOVO CHAT
-        </button>
-
-        <nav class="flex-1 space-y-2 overflow-y-auto custom-scroll">
-            <div class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-4">Recentes</div>
-            <div id="history" class="space-y-1"></div>
-        </nav>
-    </aside>
-
-    <main class="flex-1 flex flex-col chat-container relative">
-        
-        <header class="h-16 px-8 flex items-center justify-between border-b border-white/5 bg-black/20">
-            <div class="flex items-center gap-4">
-                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Motor de IA Operacional</span>
-            </div>
-            <div class="flex items-center gap-6 text-zinc-500">
-                <i class="fas fa-shield-check hover:text-white transition cursor-pointer"></i>
-                <i class="fas fa-gear hover:text-white transition cursor-pointer"></i>
-            </div>
-        </header>
-
-        <div id="viewport" class="flex-1 overflow-y-auto p-6 md:p-12 space-y-8 custom-scroll pb-32">
-            <div class="max-w-3xl mx-auto text-center py-10" id="welcome">
-                <h2 class="text-4xl font-extrabold mb-4">O que vamos construir?</h2>
-                <p class="text-zinc-500 text-sm">Sistema otimizado para Gabriel Silva. Gere imagens ou códigos agora.</p>
-            </div>
-        </div>
-
-        <div class="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black via-black/80 to-transparent">
-            <div class="max-w-3xl mx-auto relative">
-                <div class="input-pill flex items-center px-6 py-4 shadow-2xl">
-                    <input id="prompt" type="text" placeholder="Envie sua ideia..." class="bg-transparent flex-1 outline-none text-sm text-white placeholder-zinc-600">
-                    <button id="send-btn" class="ml-4 w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition active:scale-95">
-                        <i class="fas fa-paper-plane text-xs"></i>
-                    </button>
+    <aside class="sidebar flex flex-col h-full">
+        <div class="p-6">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20">
+                    <i class="fas fa-microchip text-white"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-sm">GABRIEL SILVA</h1>
+                    <p class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Enterprise System</p>
                 </div>
             </div>
+            <button onclick="Core.createNewChat()" class="w-full py-3 bg-white text-black rounded-xl text-xs font-bold hover:bg-blue-500 hover:text-white transition flex items-center justify-center gap-2">
+                <i class="fas fa-plus"></i> NOVO TÓPICO
+            </button>
         </div>
+
+        <nav id="topics-list" class="flex-1 overflow-y-auto px-4"></nav>
+
+        <div class="p-6 border-t border-zinc-900">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-[10px]">GS</div>
+                <span class="text-xs font-medium text-zinc-400">Admin Mode</span>
+            </div>
+        </div>
+    </aside>
+
+    <main class="chat-main">
+        <header class="h-16 border-b border-zinc-900 flex items-center justify-between px-8 bg-black/50 backdrop-blur-xl">
+            <div class="flex items-center gap-4">
+                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span id="current-topic-name" class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Novo Chat</span>
+            </div>
+            <button onclick="Core.deleteCurrentChat()" class="text-zinc-600 hover:text-red-500 transition text-xs">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </header>
+
+        <div id="viewport"></div>
+
+        <footer class="p-6">
+            <div class="max-w-4xl mx-auto input-box flex items-center gap-4 shadow-2xl">
+                <input id="prompt" type="text" placeholder="Envie sua mensagem..." class="bg-transparent flex-1 outline-none text-sm text-white" autocomplete="off">
+                <button id="send-btn" onclick="Core.sendMessage()" class="w-10 h-10 bg-blue-600 hover:bg-blue-500 rounded-xl flex items-center justify-center transition active:scale-90">
+                    <i class="fas fa-paper-plane text-xs text-white"></i>
+                </button>
+            </div>
+        </footer>
     </main>
 
     <script>
-        const viewport = document.getElementById('viewport');
-        const input = document.getElementById('prompt');
-        const sendBtn = document.getElementById('send-btn');
-        const historyList = document.getElementById('history');
-        const welcome = document.getElementById('welcome');
+        /**
+         * ENGINE CORE v9.0 - GABRIEL SILVA
+         * Gerenciamento de Persistência e Tópicos
+         */
+        const Core = (() => {
+            let chats = JSON.parse(localStorage.getItem('gs_chats')) || [];
+            let currentChatId = localStorage.getItem('gs_current_id') || null;
 
-        let isWorking = false;
+            const dom = {
+                viewport: document.getElementById('viewport'),
+                input: document.getElementById('prompt'),
+                topics: document.getElementById('topics-list'),
+                topicTitle: document.getElementById('current-topic-name')
+            };
 
-        function addMessage(role, text, isImage = false) {
-            if(welcome) welcome.style.display = 'none';
-            
-            const div = document.createElement('div');
-            div.className = `max-w-3xl mx-auto flex gap-5 animate-fade ${role === 'user' ? 'flex-row-reverse' : ''}`;
-            
-            const avatar = role === 'user' ? 'U' : 'GS';
-            const bubbleClass = role === 'user' ? 'msg-user' : 'msg-ai';
-
-            let content = isImage 
-                ? `<div class="rounded-xl overflow-hidden border border-white/10"><img src="${text}" class="w-full h-auto block" onload="viewport.scrollTop = viewport.scrollHeight"><div class="p-3 bg-zinc-900 text-[10px] font-bold text-blue-500 flex justify-between"><span>RENDER FLUX V2</span><a href="${text}" target="_blank">BAIXAR</a></div></div>`
-                : `<p class="text-sm leading-relaxed">${text.replace(/\n/g, '<br>')}</p>`;
-
-            div.innerHTML = `
-                <div class="w-9 h-9 rounded-lg flex-shrink-0 flex items-center justify-center font-bold text-[10px] ${role === 'user' ? 'bg-zinc-800' : 'bg-blue-600'}">${avatar}</div>
-                <div class="${bubbleClass} p-5 max-w-[85%] shadow-xl">
-                    ${content}
-                </div>
-            `;
-            
-            viewport.appendChild(div);
-            viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
-        }
-
-        async function process() {
-            const val = input.value.trim();
-            if(!val || isWorking) return;
-
-            isWorking = true;
-            input.value = '';
-            addMessage('user', val);
-
-            // Adicionar ao histórico lateral
-            const hItem = document.createElement('div');
-            hItem.className = 'p-3 text-[11px] text-zinc-500 truncate hover:bg-white/5 rounded-lg cursor-pointer';
-            hItem.innerText = val;
-            historyList.prepend(hItem);
-
-            const isImg = val.toLowerCase().match(/(imagem|foto|desenhe|crie|render)/i);
-
-            if(isImg) {
-                addMessage('ai', "Iniciando renderização de imagem de alta definição...");
-                const seed = Math.floor(Math.random() * 999999);
-                const url = `https://pollinations.ai/p/${encodeURIComponent(val)}?width=1024&height=1024&seed=${seed}&model=flux&nologo=true`;
+            const init = () => {
+                if (chats.length === 0) createNewChat();
+                else renderTopics();
                 
-                const img = new Image();
-                img.src = url;
-                img.onload = () => {
-                    viewport.lastChild.remove();
-                    addMessage('ai', url, true);
-                    isWorking = false;
-                };
-            } else {
-                try {
-                    const res = await fetch(`https://text.pollinations.ai/prompt/${encodeURIComponent("Responda de forma profissional como a IA do Gabriel Silva: " + val)}`);
-                    const txt = await res.text();
-                    addMessage('ai', txt);
-                } catch(e) {
-                    addMessage('ai', "Ocorreu um erro de comunicação. Tente novamente.");
-                }
-                isWorking = false;
-            }
-        }
+                loadChat(currentChatId || chats[0].id);
 
-        sendBtn.addEventListener('click', process);
-        input.addEventListener('keypress', (e) => { if(e.key === 'Enter') process(); });
+                dom.input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') sendMessage();
+                });
+            };
+
+            const createNewChat = () => {
+                const newChat = {
+                    id: 'chat_' + Date.now(),
+                    title: 'Nova Conversa ' + (chats.length + 1),
+                    messages: []
+                };
+                chats.unshift(newChat);
+                save();
+                loadChat(newChat.id);
+                renderTopics();
+            };
+
+            const loadChat = (id) => {
+                currentChatId = id;
+                localStorage.setItem('gs_current_id', id);
+                const chat = chats.find(c => c.id === id);
+                
+                dom.viewport.innerHTML = '';
+                dom.topicTitle.innerText = chat.title;
+                
+                chat.messages.forEach(m => renderMessage(m.role, m.content, m.type === 'image'));
+                renderTopics();
+            };
+
+            const renderMessage = (role, content, isImage = false) => {
+                const div = document.createElement('div');
+                div.className = `msg ${role}`;
+                
+                if (isImage) {
+                    div.innerHTML = `<img src="${content}" class="w-full rounded-lg shadow-lg" onload="Core.scroll()">`;
+                } else {
+                    div.innerText = content;
+                }
+                
+                dom.viewport.appendChild(div);
+                scroll();
+            };
+
+            const sendMessage = async () => {
+                const text = dom.input.value.trim();
+                if (!text) return;
+
+                dom.input.value = '';
+                const chat = chats.find(c => c.id === currentChatId);
+
+                // Atualizar título se for a primeira mensagem
+                if (chat.messages.length === 0) {
+                    chat.title = text.substring(0, 25) + "...";
+                }
+
+                const msgUser = { role: 'user', content: text };
+                chat.messages.push(msgUser);
+                renderMessage('user', text);
+                save();
+
+                const isImg = text.toLowerCase().match(/(imagem|foto|desenhe|crie)/i);
+
+                if (isImg) {
+                    const url = `https://pollinations.ai/p/${encodeURIComponent(text)}?width=1024&height=1024&seed=${Math.random()}&model=flux&nologo=true`;
+                    const msgAi = { role: 'ai', content: url, type: 'image' };
+                    chat.messages.push(msgAi);
+                    renderMessage('ai', url, true);
+                } else {
+                    try {
+                        const r = await fetch(`https://text.pollinations.ai/prompt/${encodeURIComponent(text)}`);
+                        const t = await r.text();
+                        const msgAi = { role: 'ai', content: t };
+                        chat.messages.push(msgAi);
+                        renderMessage('ai', t);
+                    } catch (e) {
+                        renderMessage('ai', "Erro de conexão.");
+                    }
+                }
+                save();
+                renderTopics();
+            };
+
+            const renderTopics = () => {
+                dom.topics.innerHTML = '';
+                chats.forEach(c => {
+                    const div = document.createElement('div');
+                    div.className = `topic-link ${c.id === currentChatId ? 'active' : ''}`;
+                    div.innerHTML = `<i class="far fa-comments mr-2"></i> ${c.title}`;
+                    div.onclick = () => loadChat(c.id);
+                    dom.topics.appendChild(div);
+                });
+            };
+
+            const deleteCurrentChat = () => {
+                chats = chats.filter(c => c.id !== currentChatId);
+                localStorage.setItem('gs_chats', JSON.stringify(chats));
+                location.reload();
+            };
+
+            const save = () => localStorage.setItem('gs_chats', JSON.stringify(chats));
+            const scroll = () => dom.viewport.scrollTop = dom.viewport.scrollHeight;
+
+            return { init, createNewChat, sendMessage, scroll, deleteCurrentChat };
+        })();
+
+        Core.init();
     </script>
 </body>
 </html>
