@@ -3,95 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GABRIEL SILVA | OS PRO</title>
+    <title>GABRIEL SILVA | SYSTEM MIRROR</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: #000; color: #fff; font-family: 'Inter', sans-serif; height: 100vh; margin: 0; display: flex; overflow: hidden; }
-        .sidebar { width: 280px; background: #080808; border-right: 1px solid #111; display: flex; flex-direction: column; flex-shrink: 0; }
-        .main { flex: 1; display: flex; flex-direction: column; background: #000; position: relative; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { background: #000; color: #ececec; font-family: 'Inter', sans-serif; height: 100vh; margin: 0; display: flex; overflow: hidden; }
+        
+        /* Sidebar */
+        .sidebar { width: 260px; background: #050505; border-right: 1px solid #151515; display: flex; flex-direction: column; flex-shrink: 0; }
+        .main { flex: 1; display: flex; flex-direction: column; background: #0a0a0a; position: relative; }
+        
+        /* Chat History */
         #chat-view { flex: 1; overflow-y: auto; padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; scroll-behavior: smooth; }
-        .msg { max-width: 80%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.6; animation: fadeIn 0.2s ease; }
-        .user { background: #2563eb; align-self: flex-end; }
-        .ai { background: #111; border: 1px solid #222; align-self: flex-start; }
-        .ai strong { color: #fff; }
-        .ai code { background: #222; padding: 2px 4px; border-radius: 4px; color: #f472b6; font-family: monospace; }
-        .topic-btn { padding: 12px; border-radius: 8px; cursor: pointer; margin-bottom: 4px; color: #666; font-size: 13px; transition: 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-left: 3px solid transparent; }
+        .msg { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 14.5px; line-height: 1.6; animation: fadeIn 0.2s ease; }
+        .user { background: #2563eb; color: white; align-self: flex-end; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+        .ai { background: #121212; border: 1px solid #1f1f1f; align-self: flex-start; }
+        
+        /* Markdown Styling (Igual a mim) */
+        .ai strong { color: #fff; font-weight: 700; }
+        .ai code { background: #1a1a1a; padding: 2px 5px; border-radius: 4px; color: #3b82f6; font-family: monospace; }
+        .ai p { margin-bottom: 0.75rem; }
+        .ai p:last-child { margin-bottom: 0; }
+
+        /* Tópicos */
+        .topic-btn { padding: 10px 14px; border-radius: 8px; cursor: pointer; color: #888; transition: 0.2s; font-size: 13px; margin: 2px 0; border: 1px solid transparent; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .topic-btn:hover { background: #111; color: #fff; }
-        .topic-btn.active { background: #161616; color: #fff; border-left-color: #2563eb; font-weight: 600; }
-        .input-area { padding: 20px; background: linear-gradient(to top, #000 80%, transparent); }
-        .input-box { background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 12px; display: flex; align-items: center; padding: 4px 12px; max-width: 800px; margin: 0 auto; }
-        input { background: transparent; border: none; outline: none; color: #fff; flex: 1; padding: 12px; font-size: 14px; }
+        .topic-btn.active { background: #1a1a1a; color: #fff; border-color: #333; font-weight: 600; }
+
+        /* Input Area */
+        .footer { padding: 24px; background: linear-gradient(to top, #0a0a0a 80%, transparent); }
+        .input-container { background: #111; border: 1px solid #222; border-radius: 14px; display: flex; align-items: center; padding: 6px 14px; max-width: 800px; margin: 0 auto; transition: 0.2s; }
+        .input-container:focus-within { border-color: #2563eb; background: #141414; }
+        input { background: transparent; border: none; outline: none; color: #fff; flex: 1; padding: 10px; font-size: 14px; }
+        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
     </style>
 </head>
 <body>
 
     <aside class="sidebar p-5">
-        <div class="flex items-center gap-3 mb-8">
-            <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center font-bold">GS</div>
-            <span class="text-xs font-bold tracking-widest uppercase">Console v20</span>
+        <div class="mb-8 px-2 flex items-center gap-3">
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white text-xs">GS</div>
+            <span class="text-[10px] font-black tracking-widest uppercase text-zinc-500">Mirror v21</span>
         </div>
-        <button onclick="Core.newChat()" class="w-full py-2 bg-white text-black font-bold rounded-lg text-xs hover:bg-blue-500 hover:text-white transition">+ NOVO TÓPICO</button>
-        <nav id="topic-list" class="flex-1 overflow-y-auto mt-6"></nav>
+        <button onclick="Mirror.new()" class="w-full py-2.5 bg-white text-black font-bold rounded-lg text-xs hover:bg-blue-600 hover:text-white transition">+ NOVO TÓPICO</button>
+        <nav id="topics-box" class="flex-1 overflow-y-auto mt-6 pr-2"></nav>
     </aside>
 
     <main class="main">
-        <header class="h-14 border-b border-zinc-900 flex items-center px-8 text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em]">Ambiente Seguro</header>
+        <header class="h-14 border-b border-zinc-900 flex items-center px-8 bg-black/20">
+            <div class="flex items-center gap-3">
+                <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                <span id="topic-name" class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Aguardando Comando...</span>
+            </div>
+        </header>
+
         <div id="chat-view"></div>
-        <footer class="input-area">
-            <div class="input-box">
-                <input id="prompt" type="text" placeholder="Escreva sua mensagem..." autocomplete="off">
-                <button onclick="Core.send()" class="text-blue-500 p-2"><i class="fas fa-paper-plane"></i></button>
+
+        <footer class="footer">
+            <div class="input-container">
+                <input id="prompt" type="text" placeholder="Como posso te ajudar agora, Gabriel?" autocomplete="off">
+                <button onclick="Mirror.send()" class="text-blue-500 hover:text-blue-400 p-2 transition active:scale-90">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
             </div>
         </footer>
     </main>
 
     <script>
-        const Core = (() => {
-            let db = JSON.parse(localStorage.getItem('gs_data')) || [];
-            let activeId = localStorage.getItem('gs_active');
+        const Mirror = (() => {
+            let data = JSON.parse(localStorage.getItem('gs_mirror')) || [];
+            let activeId = localStorage.getItem('gs_mirror_id');
 
-            const save = () => {
-                localStorage.setItem('gs_data', JSON.stringify(db));
-                localStorage.setItem('gs_active', activeId);
+            const updateStorage = () => {
+                localStorage.setItem('gs_mirror', JSON.stringify(data));
+                localStorage.setItem('gs_mirror_id', activeId);
                 renderTopics();
             };
 
             const renderTopics = () => {
-                const list = document.getElementById('topic-list');
-                list.innerHTML = '';
-                db.forEach(t => {
-                    const d = document.createElement('div');
-                    d.className = `topic-btn ${t.id === activeId ? 'active' : ''}`;
-                    d.innerText = t.name;
-                    d.onclick = () => loadChat(t.id);
-                    list.appendChild(d);
+                const nav = document.getElementById('topics-box');
+                nav.innerHTML = '';
+                data.forEach(t => {
+                    const b = document.createElement('div');
+                    b.className = `topic-btn ${t.id === activeId ? 'active' : ''}`;
+                    b.innerText = t.name;
+                    b.onclick = () => loadChat(t.id);
+                    nav.appendChild(b);
                 });
             };
 
             const loadChat = (id) => {
                 activeId = id;
-                const chat = db.find(x => x.id === id);
+                const chat = data.find(x => x.id === id);
                 document.getElementById('chat-view').innerHTML = '';
-                if(chat) chat.msgs.forEach(m => draw(m.r, m.c, m.i));
-                save();
+                if(chat) {
+                    document.getElementById('topic-name').innerText = chat.name;
+                    chat.msgs.forEach(m => draw(m.r, m.c, m.i));
+                }
+                updateStorage();
             };
 
-            const draw = (role, content, isImg) => {
+            const draw = (r, c, i) => {
                 const d = document.createElement('div');
-                d.className = `msg ${role}`;
-                if(isImg) {
-                    d.innerHTML = `<img src="${content}" class="w-full rounded-lg" onload="document.getElementById('chat-view').scrollTop = 99999">`;
+                d.className = `msg ${r}`;
+                if(i) {
+                    d.innerHTML = `<img src="${c}" class="w-full rounded-lg shadow-2xl" onload="Mirror.scroll()">`;
                 } else {
-                    d.innerHTML = marked.parse(content);
+                    d.innerHTML = marked.parse(c);
                 }
                 document.getElementById('chat-view').appendChild(d);
-                document.getElementById('chat-view').scrollTop = 99999;
+                scroll();
             };
+
+            const scroll = () => { const v = document.getElementById('chat-view'); v.scrollTop = v.scrollHeight; };
 
             const send = async () => {
                 const input = document.getElementById('prompt');
@@ -99,43 +128,12 @@
                 if(!val) return;
                 input.value = '';
 
-                let chat = db.find(x => x.id === activeId);
+                let chat = data.find(x => x.id === activeId);
                 if(chat.msgs.length === 0) chat.name = val.substring(0, 20);
 
                 chat.msgs.push({r: 'user', c: val});
                 draw('user', val);
 
-                if(val.toLowerCase().match(/imagem|foto|desenhe/)) {
-                    const u = `https://pollinations.ai/p/${encodeURIComponent(val)}?width=1024&height=1024&nologo=true`;
-                    chat.msgs.push({r: 'ai', c: u, i: true});
-                    draw('ai', u, true);
-                } else {
-                    try {
-                        const r = await fetch(`https://text.pollinations.ai/prompt/${encodeURIComponent(val)}`);
-                        const t = await r.text();
-                        chat.msgs.push({r: 'ai', c: t});
-                        draw('ai', t);
-                    } catch { draw('ai', 'Erro de conexão.'); }
-                }
-                save();
-            };
-
-            return {
-                newChat: () => {
-                    const id = 'id' + Date.now();
-                    db.unshift({id, name: 'Nova Conversa', msgs: []});
-                    activeId = id;
-                    loadChat(id);
-                },
-                send,
-                init: () => {
-                    if(!db.length) Core.newChat();
-                    else loadChat(activeId || db[0].id);
-                    document.getElementById('prompt').onkeypress = e => e.key === 'Enter' && send();
-                }
-            };
-        })();
-        Core.init();
-    </script>
-</body>
-</html>
+                const isImg = val.toLowerCase().match(/(imagem|foto|desenhe|crie)/);
+                if(isImg) {
+                    const url = `
