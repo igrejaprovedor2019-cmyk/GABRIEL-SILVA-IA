@@ -3,46 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GABRIEL OS | V22 INDUSTRIAL</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Retro Racer - Desvie!</title>
     <style>
-        body { background: #000; color: #fff; font-family: 'Inter', sans-serif; height: 100vh; margin: 0; display: flex; }
-        .sidebar { width: 260px; background: #050505; border-right: 1px solid #1a1a1a; display: flex; flex-direction: column; flex-shrink: 0; }
-        .main { flex: 1; display: flex; flex-direction: column; background: #0a0a0a; }
-        #chat-view { flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; gap: 20px; }
-        
-        .msg { max-width: 85%; padding: 14px; border-radius: 12px; font-size: 15px; line-height: 1.6; }
-        .user { background: #2563eb; align-self: flex-end; color: white; }
-        .ai { background: #111; border: 1px solid #222; align-self: flex-start; width: 100%; }
-        
-        /* Formatação de texto real */
-        .ai strong { color: #fff; font-weight: bold; }
-        .ai code { background: #222; padding: 2px 5px; border-radius: 4px; color: #60a5fa; }
-        .ai pre { background: #000; padding: 15px; border-radius: 8px; border: 1px solid #333; overflow-x: auto; margin: 10px 0; }
-
-        .footer { padding: 20px; background: #0a0a0a; }
-        .input-box { background: #111; border: 1px solid #333; border-radius: 12px; display: flex; padding: 5px 15px; max-width: 800px; margin: 0 auto; }
-        input { background: transparent; border: none; outline: none; color: #fff; flex: 1; padding: 10px; }
-        
-        .t-btn { padding: 12px; margin: 2px 15px; border-radius: 8px; cursor: pointer; color: #666; font-size: 13px; transition: 0.2s; }
-        .t-btn:hover { background: #111; color: #fff; }
-        .t-btn.active { background: #1a1a1a; color: #fff; font-weight: bold; }
+        body { margin: 0; background: #222; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; font-family: sans-serif; color: white; }
+        canvas { background: #333; border: 4px solid #555; box-shadow: 0 0 20px rgba(0,0,0,0.5); display: block; }
+        .info { margin-top: 10px; text-align: center; }
+        .score { font-size: 24px; font-weight: bold; color: #f1c40f; }
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <div class="p-6">
-            <h1 class="text-blue-600 font-black text-xl mb-6 tracking-tighter">GABRIEL OS</h1>
-            <button onclick="newChat()" class="w-full py-2 bg-white text-black font-bold rounded-lg text-xs hover:bg-blue-600 hover:text-white transition">NOVO TÓPICO</button>
-        </div>
-        <div id="topic-list" class="flex-1 overflow-y-auto"></div>
+    <div class="info">
+        <div class="score">Pontos: <span id="pontos">0</span></div>
+        <p>Use as setas <b>ESQUERDA</b> e <b>DIREITA</b> para desviar!</p>
     </div>
+    <canvas id="gameCanvas" width="400" height="600"></canvas>
 
-    <div class="main">
-        <div id="chat-view"></div>
-        <div class="footer">
-            <div class="input-box">
-                <input id="prompt" type="text" placeholder="Digite agora e veja funcionar..." onkeypress="checkKey(event)">
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const pontosEl = document.getElementById("pontos");
+
+        // Configurações do Jogador
+        const player = { x: 175, y: 500, w: 50, h: 80, speed: 5, color: "#2563eb" };
+        let inimigos = [];
+        let score = 0;
+        let gameActive = true;
+        let frameCount = 0;
+
+        // Teclado
+        const keys = {};
+        window.addEventListener("keydown", (e) => keys[e.code] = true);
+        window.addEventListener("keyup", (e) => keys[e.code] = false);
+
+        function criarInimigo() {
+            const lane = Math.floor(Math.random() * 3); // 3 faixas
+            const xPos = [50, 175, 300][lane];
+            inimigos.push({ x: xPos, y: -100, w: 50, h: 80, speed: 4 + (score / 5) });
+        }
+
+        function desenharCarro(x, y, color) {
+            // Corpo do carro
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, 50, 80);
+            // Rodas
+            ctx.fillStyle = "#000";
+            ctx.fillRect(x - 5, y + 10, 10, 20); // lateral esquerda sup
+            ctx.fillRect(x + 45, y + 10, 10, 20); // lateral direita sup
+            ctx.fillRect(x - 5, y + 50, 10, 20); // lateral esquerda inf
+            ctx.fillRect(x + 45, y + 50, 10, 20); // lateral direita inf
+            // Vidro
+            ctx.fillStyle = "#add8e6";
+            ctx.fillRect(x + 5, y + 15, 40, 20);
+        }
+
+        function update() {
+            if (!gameActive) return;
+
+            // Movimento do jogador
+            if (keys["ArrowLeft"] && player.x > 10) player.x -= player.speed;
+            if (keys["ArrowRight"] && player.x < canvas.width - player.w - 10) player.x += player.speed;
+
+            // Criar inimigos a cada 80 frames
+            if (frameCount % 80 === 0) criarInimigo();
+
+            // Mover inimigos
+            inimigos.forEach((ini, index) => {
+                ini.y += ini.speed;
+
+                // Colisão
+                if (player.x < ini.x + ini.w && player.x + player.w > ini.x &&
+                    player.y < ini.y + ini.h && player.y + player.h > ini.y) {
+                    gameActive = false;
+                    alert("GAME OVER! Pontuação: " + score);
+                    location.reload();
+                }
+
+                // Remove inimigos que passaram e ganha ponto
+                if (ini.y > canvas.height) {
+                    inimigos.splice(index, 1);
+                    score++;
+                    pontosEl.innerText = score;
+                }
+            });
+
+            frameCount++;
+        }
+
+        function draw() {
+            // Limpar tela
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Desenhar Estrada (Linhas)
+            ctx.strokeStyle = "#fff";
+            ctx.setLineDash([20, 20]);
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(133, 0); ctx.lineTo(133, canvas.height);
+            ctx.moveTo(266, 0); ctx.lineTo(266, canvas.height);
+            ctx.stroke();
+
+            // Desenhar Jogador
+            desenharCarro(player.x, player.y, player.color);
+
+            // Desenhar Inimigos
+            inimigos.forEach(ini => desenharCarro(ini.x, ini.y, "#ef4444"));
+
+            requestAnimationFrame(() => {
+                update();
+                draw();
+            });
+        }
+
+        draw();
+    </script>
+</body>
+</html>
