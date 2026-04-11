@@ -3,111 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Racer - Desvie!</title>
+    <title>Turbo Highway - Gabriel Edition</title>
     <style>
-        body { margin: 0; background: #222; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; font-family: sans-serif; color: white; }
-        canvas { background: #333; border: 4px solid #555; box-shadow: 0 0 20px rgba(0,0,0,0.5); display: block; }
-        .info { margin-top: 10px; text-align: center; }
-        .score { font-size: 24px; font-weight: bold; color: #f1c40f; }
+        body { margin: 0; background: #111; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; font-family: 'Segoe UI', sans-serif; color: white; }
+        canvas { background: #222; border: 5px solid #333; border-radius: 10px; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
+        .ui { position: absolute; top: 20px; text-align: center; pointer-events: none; }
+        .score { font-size: 32px; font-weight: 900; color: #3b82f6; text-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
     </style>
 </head>
 <body>
 
-    <div class="info">
-        <div class="score">Pontos: <span id="pontos">0</span></div>
-        <p>Use as setas <b>ESQUERDA</b> e <b>DIREITA</b> para desviar!</p>
+    <div class="ui">
+        <div class="score" id="pontos">000</div>
+        <p style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 2px;">Use as Setas para Pilotar</p>
     </div>
-    <canvas id="gameCanvas" width="400" height="600"></canvas>
+    
+    <canvas id="game" width="450" height="700"></canvas>
 
     <script>
-        const canvas = document.getElementById("gameCanvas");
+        const canvas = document.getElementById("game");
         const ctx = canvas.getContext("2d");
         const pontosEl = document.getElementById("pontos");
 
-        // Configurações do Jogador
-        const player = { x: 175, y: 500, w: 50, h: 80, speed: 5, color: "#2563eb" };
-        let inimigos = [];
         let score = 0;
         let gameActive = true;
-        let frameCount = 0;
+        let roadOffset = 0;
+        let gameSpeed = 7;
+        let frames = 0;
 
-        // Teclado
+        const player = { x: 200, y: 550, w: 45, h: 85, color: "#3b82f6" };
+        let traffic = [];
+        const colors = ["#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#ffffff"];
+
         const keys = {};
-        window.addEventListener("keydown", (e) => keys[e.code] = true);
-        window.addEventListener("keyup", (e) => keys[e.code] = false);
+        window.onkeydown = (e) => keys[e.code] = true;
+        window.onkeyup = (e) => keys[e.code] = false;
 
-        function criarInimigo() {
-            const lane = Math.floor(Math.random() * 3); // 3 faixas
-            const xPos = [50, 175, 300][lane];
-            inimigos.push({ x: xPos, y: -100, w: 50, h: 80, speed: 4 + (score / 5) });
+        function spawnCar() {
+            const lanes = [60, 155, 250, 345]; // 4 faixas de pista
+            const lane = lanes[Math.floor(Math.random() * lanes.length)];
+            
+            // Evita spawnar um carro em cima do outro na mesma faixa
+            const tooClose = traffic.some(c => c.x === lane && c.y < 150);
+            if (tooClose) return;
+
+            traffic.push({
+                x: lane,
+                y: -100,
+                w: 45,
+                h: 85,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                speed: gameSpeed * (0.6 + Math.random() * 0.5)
+            });
         }
 
-        function desenharCarro(x, y, color) {
-            // Corpo do carro
+        function drawCar(x, y, color, isPlayer = false) {
+            // Sombra
+            ctx.fillStyle = "rgba(0,0,0,0.3)";
+            ctx.fillRect(x + 5, y + 5, 45, 85);
+
+            // Carro Principal
             ctx.fillStyle = color;
-            ctx.fillRect(x, y, 50, 80);
-            // Rodas
-            ctx.fillStyle = "#000";
-            ctx.fillRect(x - 5, y + 10, 10, 20); // lateral esquerda sup
-            ctx.fillRect(x + 45, y + 10, 10, 20); // lateral direita sup
-            ctx.fillRect(x - 5, y + 50, 10, 20); // lateral esquerda inf
-            ctx.fillRect(x + 45, y + 50, 10, 20); // lateral direita inf
-            // Vidro
-            ctx.fillStyle = "#add8e6";
-            ctx.fillRect(x + 5, y + 15, 40, 20);
+            ctx.fillRect(x, y, 45, 85);
+
+            // Detalhes (Vidros e Rodas)
+            ctx.fillStyle = "#111";
+            ctx.fillRect(x + 5, y + 15, 35, 20); // Parabrisa
+            ctx.fillRect(x + 5, y + 55, 35, 10); // Vidro traseiro
+
+            // Faróis
+            ctx.fillStyle = isPlayer ? "#3b82f6" : "#fff";
+            ctx.fillRect(x + 5, y + 2, 10, 5);
+            ctx.fillRect(x + 30, y + 2, 10, 5);
         }
 
         function update() {
             if (!gameActive) return;
 
-            // Movimento do jogador
-            if (keys["ArrowLeft"] && player.x > 10) player.x -= player.speed;
-            if (keys["ArrowRight"] && player.x < canvas.width - player.w - 10) player.x += player.speed;
+            // Movimento da Estrada (Ilusão de ir para frente)
+            roadOffset += gameSpeed;
+            if (roadOffset > 100) roadOffset = 0;
 
-            // Criar inimigos a cada 80 frames
-            if (frameCount % 80 === 0) criarInimigo();
+            // Controles
+            if (keys["ArrowLeft"] && player.x > 50) player.x -= 7;
+            if (keys["ArrowRight"] && player.x < 355) player.x += 7;
 
-            // Mover inimigos
-            inimigos.forEach((ini, index) => {
-                ini.y += ini.speed;
+            // Dificuldade (Mais carros e mais velocidade)
+            frames++;
+            if (frames % Math.max(20, 50 - Math.floor(score/5)) === 0) spawnCar();
+            gameSpeed = 7 + (score / 15);
+
+            // Atualizar Tráfego
+            traffic.forEach((car, i) => {
+                car.y += car.speed;
 
                 // Colisão
-                if (player.x < ini.x + ini.w && player.x + player.w > ini.x &&
-                    player.y < ini.y + ini.h && player.y + player.h > ini.y) {
+                if (player.x < car.x + car.w && player.x + player.w > car.x &&
+                    player.y < car.y + car.h && player.y + player.h > car.y) {
                     gameActive = false;
-                    alert("GAME OVER! Pontuação: " + score);
-                    location.reload();
+                    setTimeout(() => { alert("BATIDA! Score: " + score); location.reload(); }, 10);
                 }
 
-                // Remove inimigos que passaram e ganha ponto
-                if (ini.y > canvas.height) {
-                    inimigos.splice(index, 1);
+                // Score e Remoção
+                if (car.y > canvas.height) {
+                    traffic.splice(i, 1);
                     score++;
-                    pontosEl.innerText = score;
+                    pontosEl.innerText = score.toString().padStart(3, '0');
                 }
             });
-
-            frameCount++;
         }
 
         function draw() {
-            // Limpar tela
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Grama lateral
+            ctx.fillStyle = "#14532d";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Desenhar Estrada (Linhas)
+            // Estrada
+            ctx.fillStyle = "#333";
+            ctx.fillRect(50, 0, 350, canvas.height);
+
+            // Faixas da Estrada (Movimento)
             ctx.strokeStyle = "#fff";
-            ctx.setLineDash([20, 20]);
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(133, 0); ctx.lineTo(133, canvas.height);
-            ctx.moveTo(266, 0); ctx.lineTo(266, canvas.height);
-            ctx.stroke();
+            ctx.lineWidth = 4;
+            ctx.setLineDash([40, 40]);
+            ctx.lineDashOffset = -roadOffset;
+            
+            for(let i = 1; i < 4; i++) {
+                ctx.beginPath();
+                ctx.moveTo(50 + (i * 87.5), 0);
+                ctx.lineTo(50 + (i * 87.5), canvas.height);
+                ctx.stroke();
+            }
 
-            // Desenhar Jogador
-            desenharCarro(player.x, player.y, player.color);
-
-            // Desenhar Inimigos
-            inimigos.forEach(ini => desenharCarro(ini.x, ini.y, "#ef4444"));
+            // Desenhar tudo
+            drawCar(player.x, player.y, player.color, true);
+            traffic.forEach(car => drawCar(car.x, car.y, car.color));
 
             requestAnimationFrame(() => {
                 update();
