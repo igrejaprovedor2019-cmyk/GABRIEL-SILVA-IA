@@ -1,17 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prêmio Roblox</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    height:100vh;
+    overflow:hidden;
+    position:relative;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+/* FUNDO */
+
+body::before{
+    content:"";
+    position:absolute;
+    width:100%;
+    height:100%;
+
+    background:
+    linear-gradient(rgba(0,0,0,0.68), rgba(0,0,0,0.68)),
+    url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9A_o3mMEct7X8BsAJ08YB5O0wbDlbgSV1nw&s');
+
+    background-size:cover;
+    background-position:center;
+
+    filter:blur(8px);
+    transform:scale(1.1);
+
+    z-index:-2;
+}
+
+/* INTRO */
+
+.intro{
+    position:absolute;
+    width:100%;
+    height:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+
+    background:rgba(0,0,0,0.80);
+
+    backdrop-filter:blur(12px);
+
+    z-index:50;
+
+    transition:1s;
+}
+
+.intro.hidden{
+    opacity:0;
+    visibility:hidden;
+}
+
+/* TITULO INTRO */
+
+.intro h1{
+    color:white;
+    font-size:58px;
+    letter-spacing:4px;
+    margin-bottom:30px;
+}
+
+/* LINHAS */
+
+.reward{
+    width:320px;
+
+    padding:15px;
+
+    margin:10px 0;
+
+    border-radius:16px;
+
+    background:rgba(255,255,255,0.05);
+
+    border:1px solid rgba(255,255,255,0.08);
+
+    color:#e3e3e3;
+
+    text-align:center;
+
+    font-size:18px;
+
+    backdrop-filter:blur(10px);
+}
+
+/* TEXTO */
+
+.click{
+    margin-top:35px;
+    color:#bdbdbd;
+    font-size:15px;
+    letter-spacing:2px;
+}
+
+/* PAINEL */
+
+.panel{
+    width:430px;
+
+    background:rgba(60,60,60,0.35);
+
+    backdrop-filter:blur(18px);
+
+    border-radius:28px;
+
+    padding:35px;
+
+    border:1px solid rgba(255,255,255,0.12);
+
+    box-shadow:
+    0 0 35px rgba(0,0,0,0.5),
+    inset 0 0 20px rgba(255,255,255,0.03);
+}
+
+/* LOGO */
+
+.logo{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.logo img{
+    width:150px;
+    height:150px;
+
+    object-fit:cover;
+
+    border-radius:50%;
+
+    border:4px solid rgba(255,255,255,0.18);
+
+    box-shadow:0 0 25px rgba(0,0,0,0.5);
+}
+
+/* TITULO */
+
+.title{
+    text-align:center;
+
+    color:white;
+
+    font-size:34px;
+
+    font-weight:bold;
+
+    margin-bottom:15px;
+
+    padding:12px;
+
+    border-radius:18px;
+
+    background:rgba(255,255,255,0.08);
+
+    backdrop-filter:blur(10px);
+
+    border:1px solid rgba(255,255,255,0.08);
+}
+
+/* TEXTO */
+
+.desc{
+    text-align:center;
+    color:#dcdcdc;
+    margin-bottom:28px;
+    font-size:15px;
+}
+
+/* INPUT */
+
+.input-box{
+    width:100%;
+    margin-bottom:18px;
+}
+
+.input-box input{
+    width:100%;
+
+    padding:16px;
+
+    border:none;
+
+    border-radius:18px;
+
+    background:rgba(255,255,255,0.08);
+
+    backdrop-filter:blur(10px);
+
+    color:white;
+
+    font-size:15px;
+
+    outline:none;
+
+    border:1px solid rgba(255,255,255,0.06);
+}
+
+.input-box input::placeholder{
+    color:#d0d0d0;
+}
+
+/* BOTAO */
+
+.btn{
+    width:100%;
+
+    padding:16px;
+
+    border:none;
+
+    border-radius:18px;
+
+    background:#00b06b;
+
+    color:white;
+
+    font-size:16px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:0.3s;
+}
+
+.btn:hover{
+    background:#00d47f;
+    transform:scale(1.03);
+}
+
+/* INFO */
+
+.info{
+    margin-top:20px;
+    text-align:center;
+    color:#c4c4c4;
+    font-size:13px;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- INTRO -->
+
+<div class="intro" id="intro">
+
+    <h1>PRÊMIOS</h1>
+
+    <div class="reward">
+        ROBUX GRÁTIS
+    </div>
+
+    <div class="reward">
+        FRUTAS PERMANENTES
+    </div>
+
+    <div class="reward">
+        RECOMPENSAS EXCLUSIVAS
+    </div>
+
+    <div class="click">
+        TOQUE NA TELA
+    </div>
+
+</div>
+
+<!-- PAINEL -->
+
+<div class="panel">
+
+    <div class="logo">
+
+        <img src="data:image/png;base64,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">
+
+    </div>
+
+    <div class="title">
+        PRÊMIO ROBLOX
+    </div>
+
+    <div class="desc">
+        Coloque o nick ou link do usuário Roblox
+    </div>
+
+    <div class="input-box">
+        <input type="text" placeholder="Digite aqui...">
+    </div>
+
+    <button class="btn">
+        CONTINUAR
+    </button>
+
+    <div class="info">
+        Robux • Frutas Permanentes • Recompensas
+    </div>
+
+</div>
+
 <script>
 
 const intro = document.getElementById("intro");
-
-/* SOME AUTOMATICAMENTE EM 3 SEGUNDOS */
-
-setTimeout(() => {
-    intro.classList.add("hidden");
-}, 3000);
-
-/* TAMBEM PODE CLICAR PRA PULAR */
 
 intro.addEventListener("click", () => {
     intro.classList.add("hidden");
 });
 
 </script>
+
+</body>
+</html>
